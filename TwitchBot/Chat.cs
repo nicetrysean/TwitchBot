@@ -50,16 +50,18 @@ namespace TwitchBot
                 var item = _commands[index];
                 if (item.Trigger != message.Command) continue;
 
-                InjectParserDefinitions(message, item);
-
                 if ((Frozen.ContainsKey(item.Trigger) && Frozen[item.Trigger] > 0) || (item.Random && (item.RandomValue = new Random().Next(0, 101)) >= 100 - item.Chance))
                 {
+                    InjectParserDefinitions(message, item);
+
                     if (!string.IsNullOrEmpty(item.MisfireText))
                     {
                         _irc.SendChatMessage(Parser.Parse(item.MisfireText));
                         continue;
                     }
                 }
+
+                InjectParserDefinitions(message, item);
 
                 switch (item.Action)
                 {
