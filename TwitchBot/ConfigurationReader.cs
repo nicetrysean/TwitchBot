@@ -50,7 +50,7 @@ namespace TwitchBot
             {
                 using (StreamReader r = new StreamReader("config.yaml"))
                 {
-                    deserializer.Deserialize<Configuration>(r);
+                    Data = deserializer.Deserialize<Configuration>(r);
                 }
             }
             else

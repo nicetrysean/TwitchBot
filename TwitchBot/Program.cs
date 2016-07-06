@@ -16,8 +16,9 @@ namespace TwitchBot
         {
             _config = new ConfigurationReader();
 
-            if (_config.Data.User == null)
+            if (_config.Data == null || _config.Data.User.Username == "Username")
             {
+                Console.WriteLine("No bot config! Make sure to setup the config.yaml file in the bot directory correctly.");
                 Console.WriteLine(" ██████╗  ██████╗  ██████╗ ██████╗ ██╗     ██╗   ██╗ ██████╗██╗  ██╗   \r\n██╔════╝ ██╔═══██╗██╔═══██╗██╔══██╗██║     ██║   ██║██╔════╝██║ ██╔╝   \r\n██║  ███╗██║   ██║██║   ██║██║  ██║██║     ██║   ██║██║     █████╔╝    \r\n██║   ██║██║   ██║██║   ██║██║  ██║██║     ██║   ██║██║     ██╔═██╗    \r\n╚██████╔╝╚██████╔╝╚██████╔╝██████╔╝███████╗╚██████╔╝╚██████╗██║  ██╗██╗\r\n ╚═════╝  ╚═════╝  ╚═════╝ ╚═════╝ ╚══════╝ ╚═════╝  ╚═════╝╚═╝  ╚═╝╚═╝");
                 while (true)
                 {
