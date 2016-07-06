@@ -24,6 +24,8 @@ namespace TwitchBot
             public int VotesRequired;
             public string FileName;
             public double Cooldown;
+            public bool Random;
+            [JsonIgnore] public int RandomValue;
         }
 
         public List<Item> Items;

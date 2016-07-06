@@ -48,6 +48,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Chat.cs" />
     <Compile Include="ConfigurationReader.cs" />
     <Compile Include="IrcClient.cs" />
     <Compile Include="Parser.cs" />
@@ -56,7 +57,9 @@
     <Compile Include="ShuffleBag.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Newtonsoft.Json.dll" />

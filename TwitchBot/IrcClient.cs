@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Net.Sockets;
 
 namespace TwitchBot
@@ -32,6 +31,7 @@ namespace TwitchBot
         {
             _lastUsedIp = ip;
             _lastUsedPort = port;
+
             _tcpClient = new TcpClient(ip, port);
             _inputStream = new StreamReader(_tcpClient.GetStream());
             _outputStream = new StreamWriter(_tcpClient.GetStream());
@@ -53,6 +53,12 @@ namespace TwitchBot
         public void SendChatMessage(string message)
         {
             SendIrcMessage(string.Format(":{0}!{0}@{0}.tmi.twitch.tv PRIVMSG {1} :{2}", _username, _channel, message));
+        }
+
+        public void SendWhisper(string user, string message)
+        {
+            SendIrcMessage(string.Format(":{0}!{0}@{0}.tmi.twitch.tv PRIVMSG {1} :/w {3} {2}", _username, _channel,
+                message, user));
         }
 
         public void Reconnect()
