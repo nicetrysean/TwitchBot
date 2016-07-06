@@ -14,9 +14,9 @@ namespace TwitchBot
 
         public static void Main(string[] args)
         {
-            _config = new ConfigurationReader("credentials.json", "commands.json", "messages.json");
+            _config = new ConfigurationReader();
 
-            if (_config.Items == null)
+            if (_config.Data.User == null)
             {
                 Console.WriteLine(" ██████╗  ██████╗  ██████╗ ██████╗ ██╗     ██╗   ██╗ ██████╗██╗  ██╗   \r\n██╔════╝ ██╔═══██╗██╔═══██╗██╔══██╗██║     ██║   ██║██╔════╝██║ ██╔╝   \r\n██║  ███╗██║   ██║██║   ██║██║  ██║██║     ██║   ██║██║     █████╔╝    \r\n██║   ██║██║   ██║██║   ██║██║  ██║██║     ██║   ██║██║     ██╔═██╗    \r\n╚██████╔╝╚██████╔╝╚██████╔╝██████╔╝███████╗╚██████╔╝╚██████╗██║  ██╗██╗\r\n ╚═════╝  ╚═════╝  ╚═════╝ ╚═════╝ ╚══════╝ ╚═════╝  ╚═════╝╚═╝  ╚═╝╚═╝");
                 while (true)
@@ -25,16 +25,16 @@ namespace TwitchBot
                 }
             }
 
-            foreach (var text in _config.Texts)
+            foreach (var text in _config.Data.Messages)
             {
                 Parser.UserDefinedGenerations.Add(text.Key, new ShuffleBag<string>(text.Value));
             }
 
             Console.Write(" ██████╗ ██████╗ ███████╗ █████╗ ████████╗         ██╗ ██████╗ ██████╗ \r\n██╔════╝ ██╔══██╗██╔════╝██╔══██╗╚══██╔══╝         ██║██╔═══██╗██╔══██╗\r\n██║  ███╗██████╔╝█████╗  ███████║   ██║            ██║██║   ██║██████╔╝\r\n██║   ██║██╔══██╗██╔══╝  ██╔══██║   ██║       ██   ██║██║   ██║██╔══██╗\r\n╚██████╔╝██║  ██║███████╗██║  ██║   ██║       ╚█████╔╝╚██████╔╝██████╔╝\r\n ╚═════╝ ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝   ╚═╝        ╚════╝  ╚═════╝ ╚═════╝ \n");
-            _irc = new IrcClient("irc.chat.twitch.tv", 6667, _config.User.Username, _config.User.Password);
-            _irc.JoinRoom(_config.User.Channel);
+            _irc = new IrcClient("irc.chat.twitch.tv", 6667, _config.Data.User.Username, _config.Data.User.Password);
+            _irc.JoinRoom(_config.Data.User.Channel);
 
-            _chat = new Chat(_irc, _config.Items.ToArray());
+            _chat = new Chat(_irc, _config.Data.Commands);
             
             _mediaPlayer = new WindowsMediaPlayer();
             _mediaPlayer.MediaError += MediaError;

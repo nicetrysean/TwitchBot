@@ -16,7 +16,7 @@ namespace TwitchBot
         }
 
         private readonly IrcClient _irc;
-        private readonly ConfigurationReader.Item[] _commands;
+        private readonly ConfigurationReader.Command[] _commands;
 
         private static readonly Regex UsernameRegex = new Regex(@"^:([\w]+?)!");
         private static readonly Regex CommandRegex = new Regex(@"(?::)(![\w]+)");
@@ -27,7 +27,7 @@ namespace TwitchBot
         private const int VoteRefreshTime = 240;
         private static int _resetVoteTime;
 
-        public Chat(IrcClient irc, ConfigurationReader.Item[] commands)
+        public Chat(IrcClient irc, ConfigurationReader.Command[] commands)
         {
             _irc = irc;
             _commands = commands;
@@ -48,11 +48,11 @@ namespace TwitchBot
             for (int index = 0; index < _commands.Length; index++)
             {
                 var item = _commands[index];
-                if (item.Command != message.Command) continue;
+                if (item.Trigger != message.Command) continue;
 
                 InjectParserDefinitions(message, item);
 
-                if ((Frozen.ContainsKey(item.Command) && Frozen[item.Command] > 0) || (item.Random && (item.RandomValue = new Random().Next(0, 101)) >= 95))
+                if ((Frozen.ContainsKey(item.Trigger) && Frozen[item.Trigger] > 0) || (item.Random && (item.RandomValue = new Random().Next(0, 101)) >= 100 - item.Chance))
                 {
                     if (!string.IsNullOrEmpty(item.MisfireText))
                     {
@@ -71,25 +71,25 @@ namespace TwitchBot
                         _irc.SendChatMessage(item.Text);
                         break;
                     case "Vote":
-                        if (Votes.ContainsKey(item.Command))
+                        if (Votes.ContainsKey(item.Trigger))
                         {
-                            if (item.VotesRequired <= Votes[item.Command] - 1)
+                            if (item.VotesRequired <= Votes[item.Trigger] - 1)
                             {
                                 _irc.SendChatMessage(Parser.Parse(Parser.UserDefinedGenerations["Vote Succeed"].Next()));
                                 if (!string.IsNullOrEmpty(item.FileName))
                                     PlayAudio(Directory.GetCurrentDirectory() + @"\Audio\" + item.FileName);
-                                Votes.Remove(item.Command);
+                                Votes.Remove(item.Trigger);
                             }
                             else
                             {
-                                Votes[item.Command] += 1;
+                                Votes[item.Trigger] += 1;
                                 _resetVoteTime = VoteRefreshTime;
                                 _irc.SendChatMessage(Parser.Parse(Parser.UserDefinedGenerations["Vote"].Next()));
                             }
                         }
                         else
                         {
-                            Votes.Add(item.Command, 0);
+                            Votes.Add(item.Trigger, 0);
                             _irc.SendChatMessage(Parser.Parse(Parser.UserDefinedGenerations["New Vote"].Next()));
                         }
                         break;
@@ -100,7 +100,7 @@ namespace TwitchBot
                 }
 
                 if (!(item.Cooldown > 0)) continue;
-                Frozen[item.Command] = (int)item.Cooldown * 60;
+                Frozen[item.Trigger] = (int)item.Cooldown * 60;
             }
         }
 
@@ -153,23 +153,23 @@ namespace TwitchBot
             }
         }
 
-        private static void InjectParserDefinitions(Message message, ConfigurationReader.Item item)
+        private static void InjectParserDefinitions(Message message, ConfigurationReader.Command command)
         {
             string cooldown = "0s";
             string count = "0";
 
-            if (item.Cooldown > 0 && Frozen.ContainsKey(item.Command))
-                cooldown = new TimeSpan(0, 0, 0, Frozen[item.Command]).ToString();
+            if (command.Cooldown > 0 && Frozen.ContainsKey(command.Trigger))
+                cooldown = new TimeSpan(0, 0, 0, Frozen[command.Trigger]).ToString();
 
-            if (Votes.ContainsKey(item.Name))
-                count = Votes[item.Name].ToString();
+            if (Votes.ContainsKey(command.Name))
+                count = Votes[command.Name].ToString();
 
             //Supposedly this was fixed, but not :~(
             //discuss.dev.twitch.tv/t/whispers-over-irc-username-lowercase-uppercase/5697
             Parser.ApplicationDefined["Username"] = FirstLetterToUpper(message.Sender);
 
-            Parser.ApplicationDefined["Name"] = item.Name;
-            Parser.ApplicationDefined["Random"] = item.RandomValue.ToString();
+            Parser.ApplicationDefined["Name"] = command.Name;
+            Parser.ApplicationDefined["Random"] = command.RandomValue.ToString();
             Parser.ApplicationDefined["Cooldown"] = cooldown;
             Parser.ApplicationDefined["Count"] = count;
         }

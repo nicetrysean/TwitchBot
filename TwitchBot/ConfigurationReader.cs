@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using Newtonsoft.Json;
+﻿using System.Collections.Generic;
 using System.IO;
+using YamlDotNet.Serialization;
 
 namespace TwitchBot
 {
@@ -9,106 +8,61 @@ namespace TwitchBot
     {
         public class Credentials
         {
-            public string Username = "username";
-            public string Password = "oauth:xxxxx";
-            public string Channel = "#channel";
+            public string Username { get; private set; } = "Username";
+            public string Password { get; private set; } = "oauth:xxxx";
+            public string Channel { get; private set; } = "#channel";
         }
 
-        public class Item
+        public class Command
         {
-            public string Name;
-            public string Command;
-            public string Action;
-            public string Text;
-            public string MisfireText;
-            public int VotesRequired;
-            public string FileName;
-            public double Cooldown;
-            public bool Random;
-            [JsonIgnore] public int RandomValue;
+            public string Name { get; set; } = "Name";
+            public string Trigger { get; set; } = "!command";
+            public string Action { get; set; } = "Text";
+            public string Text { get; set; } = "";
+            public string MisfireText { get; set; } = "This command is currently cooling down";
+            public int VotesRequired { get; set; } = 3;
+            public string FileName { get; set; } = "audio.mp3";
+            public double Cooldown { get; set; } = 1;
+            public bool Random { get; set; } = false;
+            public int Chance { get; set; } = 0;
+            [YamlIgnore] public int RandomValue;
         }
 
-        public List<Item> Items;
-        public Credentials User;
-        public Dictionary<string, string[]> Texts;
-
-        public ConfigurationReader(string credentials, string items, string messages)
+        public class Configuration
         {
-            if (!File.Exists(credentials))
-            {
-                Console.WriteLine("No credentials found! Created credentials.json for you to fill in.");
-                using (StreamWriter r = new StreamWriter(credentials))
-                {
-                    r.Write(JsonConvert.SerializeObject(new Credentials(), Formatting.Indented));
-                }
-                return;
-            }
+            public Credentials User { get; set; } = new Credentials();
+            public Command[] Commands { get; set; } = { new Command() };
 
-            if (!File.Exists(items))
+            public Dictionary<string, string[]> Messages { get; set; } = new Dictionary<string, string[]>()
             {
-                Console.WriteLine("No Commands found! Created commands.json");
-                Items = new List<Item>(1) {new Item {Action = "Text", Text = "This is a live demo!", Command = "!demo", Cooldown = 0.1, Name = "Demo Text"} };
-                using (StreamWriter r = new StreamWriter(items))
                 {
-                    r.Write(JsonConvert.SerializeObject(Items, Formatting.Indented));
+                    "Say", new[] {"Things", "To", "#Say#"}
                 }
-            }
+            };
+        }
 
-            if (!File.Exists(messages))
+        public Configuration Data;
+
+        public ConfigurationReader()
+        {
+            var deserializer = new Deserializer();
+            if (File.Exists("config.yaml"))
             {
-                Console.WriteLine("No Messages found! Created messages.json");
-                Texts = new Dictionary<string, string[]>(1) {{"Demo", new[] {"Write", "Stuff", "Here"}}};
-                using (StreamWriter r = new StreamWriter(messages))
+                using (StreamReader r = new StreamReader("config.yaml"))
                 {
-                    r.Write(JsonConvert.SerializeObject(Texts, Formatting.Indented));
+                    deserializer.Deserialize<Configuration>(r);
                 }
             }
-
-            LoadItems(items);
-            LoadTextMessages(messages);
-            LoadCredentials(credentials);
-        }
-
-        public void LoadItems(string filePath)
-        {
-            if (!File.Exists(filePath))
+            else
             {
-                Console.WriteLine("No commands! Make sure commands.json is in the directory.");
-                return;
-            }
-            using (StreamReader r = new StreamReader(filePath))
-            {
-                var json = r.ReadToEnd();
-                Items = JsonConvert.DeserializeObject<List<Item>>(json);
+                Data = new Configuration();
+                using (StreamWriter r = new StreamWriter("config.yaml"))
+                {
+                    var serializer = new Serializer(SerializationOptions.EmitDefaults);
+                    serializer.Serialize(r, Data);
+                }
             }
         }
-
-        public void LoadTextMessages(string filePath)
-        {
-            if (!File.Exists(filePath))
-            {
-                Console.WriteLine("No messages! Make sure messages.json is in the directory.");
-                return;
-            }
-            using (StreamReader r = new StreamReader(filePath))
-            {
-                var json = r.ReadToEnd();
-                Texts = JsonConvert.DeserializeObject<Dictionary<string,string[]>>(json);
-            }
-        }
-
-        public void LoadCredentials(string filePath)
-        {
-            if (!File.Exists(filePath))
-            {
-                Console.WriteLine("No credentials! Make sure credentials.json is in the directory.");
-                return;
-            }
-            using (StreamReader r = new StreamReader(filePath))
-            {
-                var json = r.ReadToEnd();
-                User = JsonConvert.DeserializeObject<Credentials>(json);
-            }
-        }
+        
     }
 }
