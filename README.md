@@ -1,7 +1,14 @@
 # TwitchBot
 Lean IRC/Twitch Bot written in C#, backed with YAML.
 
-# YAML Setup
+## Features
+- Local audio playback for commands
+- Commands for voting on subjects
+- Cooldowns
+- Text parsing with the ability to use ShuffleBag randomisation.
+- Supports using `#Variable#` notation to call in different lists and variables.
+
+## YAML Setup
 
 ### User:
 ```
@@ -35,3 +42,21 @@ Lean IRC/Twitch Bot written in C#, backed with YAML.
     - `Vote`
     - `New Vote`
     - `Vote Succeed`
+
+#### Variables Exposed
+These variables are exposed as such to be used in Messages.
+
+`#Username#`
+> Who invoked the command
+
+`Name`
+> Command Name
+
+`Random`
+> When Random is set to true, this will return 0-100%
+
+`Cooldown`
+> How long the cooldown has left
+
+`Count`
+> Used for displaying the voting amounts
