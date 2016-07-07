@@ -49,14 +49,14 @@ These variables are exposed as such to be used in Messages.
 `#Username#`
 > Who invoked the command
 
-`Name`
+`#Name#`
 > Command Name
 
-`Random`
+`#Random#`
 > When Random is set to true, this will return 0-100%
 
-`Cooldown`
+`#Cooldown#`
 > How long the cooldown has left
 
-`Count`
+`#Count#`
 > Used for displaying the voting amounts
