@@ -75,7 +75,7 @@ namespace TwitchBot
                     case "Vote":
                         if (Votes.ContainsKey(item.Trigger))
                         {
-                            if (item.VotesRequired <= Votes[item.Trigger] - 1)
+                            if (item.VotesRequired - 1 <= Votes[item.Trigger])
                             {
                                 _irc.SendChatMessage(Parser.Parse(Parser.UserDefinedGenerations["Vote Succeed"].Next()));
                                 if (!string.IsNullOrEmpty(item.FileName))
@@ -86,12 +86,15 @@ namespace TwitchBot
                             {
                                 Votes[item.Trigger] += 1;
                                 _resetVoteTime = VoteRefreshTime;
+                                Parser.ApplicationDefined["Count"] = Votes[item.Trigger].ToString();
                                 _irc.SendChatMessage(Parser.Parse(Parser.UserDefinedGenerations["Vote"].Next()));
                             }
                         }
                         else
                         {
-                            Votes.Add(item.Trigger, 0);
+                            Console.WriteLine("Voting on " + item.Trigger);
+                            Votes.Add(item.Trigger, 1);
+                            _resetVoteTime = VoteRefreshTime;
                             _irc.SendChatMessage(Parser.Parse(Parser.UserDefinedGenerations["New Vote"].Next()));
                         }
                         break;
@@ -163,8 +166,8 @@ namespace TwitchBot
             if (command.Cooldown > 0 && Frozen.ContainsKey(command.Trigger))
                 cooldown = new TimeSpan(0, 0, 0, Frozen[command.Trigger]).ToString();
 
-            if (Votes.ContainsKey(command.Name))
-                count = Votes[command.Name].ToString();
+            if (Votes.ContainsKey(command.Trigger))
+                count = Votes[command.Trigger].ToString();
 
             //Supposedly this was fixed, but not :~(
             //discuss.dev.twitch.tv/t/whispers-over-irc-username-lowercase-uppercase/5697
