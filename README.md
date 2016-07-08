@@ -1,28 +1,62 @@
 # TwitchBot
-Simple IRC Twitch Bot written in C#, backed with JSON.
+Lean IRC/Twitch Bot written in C#, backed with YAML.
 
-# JSON Setup
+## Features
+- Local audio playback for commands
+- Commands for voting on subjects
+- Cooldowns
+- Text parsing with the ability to use ShuffleBag randomisation.
+- Supports using `#Variable#` notation to call in different lists and variables.
 
-- credentials.json
-    - Username 
-    - Password (http://www.twitchapps.com/tmi/)
-    - Channel (your channel starting with #)
+## YAML Setup
 
-- commands.json
-    - Name
-    - Action (Text / Audio / Vote)
-    - Command
-    - Text (replies to general twitch chat)
-    - Cooldown (in minutes)
-    - MisfireText (Text is replied when command is in Cooldown)
-    - Filename (name of audio source, Audio/Vote have the ability to play audio)
-    
-- messages.json
-    You can reference other lists by calling #ListName#.
-    All responses are chosen at psuedo random and theres no limit to how many references you can have.
-    
-    - Special Fields
-        These lists are all given 'Name' and the Vote list is given 'Count'. These are required.
-        - Vote
-        - New Vote
-        - Vote Succeed
+### User:
+```
+  Username: username
+  Password: (http://www.twitchapps.com/tmi/)
+  Channel: "(your channel starting with #)"
+```
+### Commands:
+```
+  - Name: Command Name
+  Trigger: '!command'
+  Action: Text # Can be Text / Vote / Audio
+  Text: 'woah, this had a #Random#% chance of firing, and did!'
+  MisfireText: 'the stars didn't align'
+  VotesRequired: 0
+  FileName: audio.mp3
+  Cooldown: 1 #measured in minutes
+  Random: true
+  Chance: 10 # 10% chance
+```
+### Messages:
+```  
+  Say:
+  - Things
+  - To
+  - "#Say#" 
+```
+
+### Special Fields For Vote Events
+    The following are required to be in the Messages!
+    - `Vote`
+    - `New Vote`
+    - `Vote Succeed`
+
+#### Variables Exposed
+These variables are exposed as such to be used in Messages.
+
+`#Username#`
+> Who invoked the command
+
+`#Name#`
+> Command Name
+
+`#Random#`
+> When Random is set to true, this will return 0-100%
+
+`#Cooldown#`
+> How long the cooldown has left
+
+`#Count#`
+> Used for displaying the voting amounts
